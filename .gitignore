@@ -1,0 +1,11 @@
+.idea
+__pycache__
+venv
+*.egg-info
+dist
+
+# tests and debugs
+.pytest_cache
+.coverage
+.mutmut-cache
+htmlcov
