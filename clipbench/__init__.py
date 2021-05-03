@@ -19,11 +19,10 @@ class ClipboardWorkbench(QMainWindow):
 
         self._transfer = Lock()
         self._sync_direction = ''
-        self._formats = []
         self._possible_editors = []
         self._current_editor = None
         self._buffer = None
-        self.format_data = {}
+        self._mime_data = {}
 
         self.setMinimumSize(QSize(440, 240))
         self.setWindowTitle("Clipboard Workbench")
@@ -87,20 +86,23 @@ class ClipboardWorkbench(QMainWindow):
         return clipboard_select
 
     @property
-    def formats(self):
-        return self._formats
+    def mime_data(self):
+        return self._mime_data
 
-    @formats.setter
-    def formats(self, value):
-        self._formats = value
+    @mime_data.setter
+    def mime_data(self, value):
+        if isinstance(value, QMimeData):
+            self._mime_data = {fmt: value.data(fmt) for fmt in value.formats()}
+        else:
+            self._mime_data = value
         self._possible_editors = [
             ((f"{f} |> {e}" if e else f), b)
-            for row, (f, e, b) in enumerate(possible_editors(self.formats))
+            for row, (f, e, b) in enumerate(possible_editors(self._mime_data))
         ]
         self.mime_select.clear()
         rows = [fe for fe, b in self._possible_editors]
         self.mime_select.addItems(rows)
-        if not value:
+        if not self._mime_data:
             self.current_editor = None
         elif self.current_editor not in rows:
             for fmt in ['text/plain', 'text/html', 'application/x-qt-windows-mime;value="Rich Text Format"']:
@@ -108,7 +110,7 @@ class ClipboardWorkbench(QMainWindow):
                     self.current_editor = fmt
                     break
             else:
-                self.current_editor = value[0]
+                self.current_editor = rows[0]
         else:
             self.current_editor = self.current_editor
 
@@ -157,8 +159,7 @@ class ClipboardWorkbench(QMainWindow):
         with self._transfer:
             self._sync_direction = CLIPBOARD_TO_BUFFER
             mime = clipboard.mimeData()
-            self.formats = mime.formats()
-            self.format_data = {fmt: mime.data(fmt) for fmt in self.formats}
+            self.mime_data = mime
             fe, b = self._possible_editors[self.mime_select.currentRow()]
             self._current_editor = fe
             self.buffer = b()
@@ -167,16 +168,15 @@ class ClipboardWorkbench(QMainWindow):
 
     def sync_buffer_to_clipboard(self):
         assert self._sync_direction == BUFFER_TO_CLIPBOARD
-        self.formats = [self.current_format]
         data = self.buffer.get_content()
-        self.format_data = {self.current_format: data}
+        self.mime_data = {self.current_format: data}
         mimedata = QMimeData()
         mimedata.setData(self.current_format, data)
         QApplication.clipboard().setMimeData(mimedata)
 
     def sync_clipboard_to_buffer(self):
         assert self._sync_direction == CLIPBOARD_TO_BUFFER
-        byte_data = self.format_data[self.current_format]
+        byte_data = self.mime_data[self.current_format]
         if isinstance(byte_data, QByteArray):
             byte_data = byte_data.data()
         self.buffer.set_content(byte_data)

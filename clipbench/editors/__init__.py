@@ -16,9 +16,9 @@ _registry = {
 }
 
 
-def possible_editors(mime_formats):
+def possible_editors(mime_dict):
     result = []
-    for mime_format in mime_formats:
+    for mime_format, bytes_content in mime_dict.items():
         if mime_format in _registry:
             for exp, buffer in _registry[mime_format].items():
                 result.append((mime_format, exp, buffer))
