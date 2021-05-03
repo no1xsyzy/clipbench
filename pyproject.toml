@@ -8,6 +8,7 @@ authors = ["no1xsyzy <mf20070535@126.com>"]
 python = "^3.9"
 PyQt5 = "^5.15.4"
 chardet = "^4.0.0"
+inflection = "^0.5.1"
 
 [tool.poetry.dev-dependencies]
 PyQt5-stubs = "^5.15.2"

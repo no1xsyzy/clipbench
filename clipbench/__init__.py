@@ -1,13 +1,15 @@
 import sys
+import traceback
 from functools import cached_property
 from threading import Lock
 
 from PyQt5.QtCore import QSize, QMimeData, QItemSelectionModel, QByteArray
 from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QGridLayout, QListWidget, QLineEdit, QHBoxLayout, QWidget,
+    QApplication, QMainWindow, QGridLayout, QListWidget, QLineEdit, QHBoxLayout, QWidget, QMessageBox,
 )
 
 from .editors import possible_editors
+from .processors import run
 
 BUFFER_TO_CLIPBOARD = 'BUFFER_TO_CLIPBOARD'
 CLIPBOARD_TO_BUFFER = 'CLIPBOARD_TO_BUFFER'
@@ -32,6 +34,7 @@ class ClipboardWorkbench(QMainWindow):
         self.clipboard_changed()
         QApplication.clipboard().dataChanged.connect(self.clipboard_changed)
         self.mime_select.currentRowChanged.connect(self.mime_select_changed)
+        self.command_line.returnPressed.connect(self.run_command)
 
     @cached_property
     def central_widget(self):
@@ -180,6 +183,24 @@ class ClipboardWorkbench(QMainWindow):
         if isinstance(byte_data, QByteArray):
             byte_data = byte_data.data()
         self.buffer.set_content(byte_data)
+
+    def run_command(self):
+        command = self.command_line.text()
+        split = command.split(" ")
+        widget = self.buffer.widget
+        # noinspection PyBroadException
+        # since it is showing the exception to user
+        try:
+            run(split, widget)
+        except Exception:
+            msg = QMessageBox()
+            msg.setWindowTitle("ClipBench")
+            msg.setText(''.join(traceback.format_exception_only(*sys.exc_info()[:2])))
+            msg.setInformativeText(traceback.format_exc())
+            msg.exec_()
+            self.command_line.selectAll()
+        else:
+            self.command_line.setText("")
 
 
 def main():
