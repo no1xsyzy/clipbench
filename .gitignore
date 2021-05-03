@@ -3,6 +3,7 @@ __pycache__
 venv
 *.egg-info
 dist
+_console_env.py
 
 # tests and debugs
 .pytest_cache
