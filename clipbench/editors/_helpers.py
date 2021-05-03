@@ -1,5 +1,7 @@
 from math import ceil
 
+import chardet
+
 
 def to_hex_dump(b: bytes):
     ss = []
@@ -31,3 +33,12 @@ def byte_to_char(c: int):
 
 def from_hex_dump(ss: str):
     return bytes([int(c, 16) for s in ss.split("\n") for c in s.split("|")[1].strip().split(" ")])
+
+
+def decode(b: bytes, given_enc: str = ""):
+    if given_enc != "":
+        enc = given_enc
+    else:
+        enc = chardet.detect(b)['encoding']
+    s = b.decode(enc)
+    return enc, s
