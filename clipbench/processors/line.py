@@ -1,6 +1,8 @@
+import re
+
 from PyQt5.QtWidgets import QTextEdit
 
-from ._base import BaseProcessor, check_args_range
+from ._base import *
 
 
 def with_each_line(func, buffer_widget):
@@ -9,12 +11,7 @@ def with_each_line(func, buffer_widget):
                                        for s, ss in zip(text.splitlines(), text.splitlines(True))))
 
 
-class AddPrefix(BaseProcessor):
-    def available(self, mime_format):
-        if mime_format == "text/plain":
-            return True
-        return False
-
+class AddPrefix(BasePlainTextProcessor):
     def process(self, args, buffer_widget: QTextEdit):
         check_args_range(len(args), 2, 2)
         prefix = args[1]
@@ -24,12 +21,7 @@ class AddPrefix(BaseProcessor):
         return []
 
 
-class AddSuffix(BaseProcessor):
-    def available(self, mime_format):
-        if mime_format == "text/plain":
-            return True
-        return False
-
+class AddSuffix(BasePlainTextProcessor):
     def process(self, args, buffer_widget: QTextEdit):
         check_args_range(len(args), 2, 2)
         suffix = args[1]
@@ -39,12 +31,7 @@ class AddSuffix(BaseProcessor):
         return []
 
 
-class Replace(BaseProcessor):
-    def available(self, mime_format):
-        if mime_format == "text/plain":
-            return True
-        return False
-
+class Replace(BasePlainTextProcessor):
     def process(self, args, buffer_widget):
         check_args_range(len(args), 3, 3)
         _, from_, to = args
