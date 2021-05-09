@@ -39,3 +39,13 @@ class Replace(BasePlainTextProcessor):
 
     def auto_complete(self, args, index):
         return []
+
+
+class Sub(BasePlainTextProcessor):
+    def process(self, args, buffer_widget):
+        check_args_range(len(args), 3, 3)
+        _, from_, to = args
+        with_each_line(lambda line: re.sub(from_, to, line), buffer_widget)
+
+    def auto_complete(self, args, index):
+        return []

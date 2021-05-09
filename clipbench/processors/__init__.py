@@ -12,6 +12,8 @@ command_alias = {
     'r.prefix': 'line.add_prefix',
     'r.suffix': 'line.add_suffix',
     'r.replace': 'line.replace',
+    'r.s': 'line.sub',
+    's': 'r.s',
 }
 
 all_commands = []
