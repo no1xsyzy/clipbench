@@ -1,3 +1,4 @@
+import shlex
 import sys
 import traceback
 from functools import cached_property
@@ -186,7 +187,7 @@ class ClipboardWorkbench(QMainWindow):
 
     def run_command(self):
         command = self.command_line.text()
-        split = command.split(" ")
+        split = shlex.split(command)
         widget = self.buffer.widget
         # noinspection PyBroadException
         # since it is showing the exception to user
