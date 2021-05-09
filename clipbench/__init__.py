@@ -114,7 +114,8 @@ class ClipboardWorkbench(QMainWindow):
                     self.current_editor = fmt
                     break
             else:
-                self.current_editor = rows[0]
+                if rows:
+                    self.current_editor = rows[0]
         else:
             self.current_editor = self.current_editor
 
@@ -164,10 +165,11 @@ class ClipboardWorkbench(QMainWindow):
             self._sync_direction = CLIPBOARD_TO_BUFFER
             mime = clipboard.mimeData()
             self.mime_data = mime
-            fe, b = self._possible_editors[self.mime_select.currentRow()]
-            self._current_editor = fe
-            self.buffer = b()
-            self.sync_clipboard_to_buffer()
+            if self.mime_select.currentRow() >= 0:
+                fe, b = self._possible_editors[self.mime_select.currentRow()]
+                self._current_editor = fe
+                self.buffer = b()
+                self.sync_clipboard_to_buffer()
             self._sync_direction = None
 
     def sync_buffer_to_clipboard(self):
