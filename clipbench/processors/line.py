@@ -11,6 +11,12 @@ def map_line(func, buffer_widget):
                                        for s, ss in zip(text.splitlines(), text.splitlines(True))))
 
 
+def filter_line(func, buffer_widget):
+    text = buffer_widget.toPlainText()
+    text = ''.join(ss for s, ss in zip(text.splitlines(), text.splitlines(True)) if func(s))
+    buffer_widget.setPlainText(text)
+
+
 class AddPrefix(BasePlainTextProcessor):
     def process(self, args, buffer_widget: QTextEdit):
         check_args_range(len(args), 2, 2)
@@ -46,6 +52,16 @@ class Sub(BasePlainTextProcessor):
         check_args_range(len(args), 3, 3)
         _, from_, to = args
         map_line(lambda line: re.sub(from_, to, line), buffer_widget)
+
+    def auto_complete(self, args, index):
+        return []
+
+
+class OnlyKeepLinesContainingRegex(BasePlainTextProcessor):
+    def process(self, args, buffer_widget):
+        check_args_range(len(args), 2, 2)
+        _, pattern = args
+        filter_line(lambda line: re.search(pattern, line), buffer_widget)
 
     def auto_complete(self, args, index):
         return []
