@@ -1,7 +1,7 @@
 from ._base import BaseBuffer
-from .plain_text import PlainTextBuffer
-from .html import HtmlBuffer
 from .hex import HexBuffer
+from .html import HtmlBuffer
+from .plain_text import PlainTextBuffer
 
 _registry = {
     'text/plain': {
