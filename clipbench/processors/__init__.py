@@ -52,10 +52,11 @@ def solve_command_object(command: str) -> Optional[BaseProcessor]:
 def run(args: list[str], clipbench: 'ClipboardWorkbench'):
     if not args:
         raise ValueError("empty line")
-    command = solve_alias(args[0])
+    alias = args[0]
+    command = solve_alias(alias)
     p = solve_command_object(command)
     if p is None or not p.available(clipbench.current_format):
-        raise ValueError(f"no such command: `{command}`")
+        raise ValueError(f"no such command: `{alias}`")
     p.process(args, clipbench)
 
 
