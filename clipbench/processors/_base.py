@@ -1,6 +1,5 @@
+import typing
 from abc import ABC, abstractmethod
-
-from PyQt5.QtWidgets import QWidget
 
 __all__ = ['BaseProcessor', 'BasePlainTextProcessor', 'check_args_range']
 
@@ -10,7 +9,7 @@ class BaseProcessor(ABC):
     def available(self, mime_format: str) -> bool: ...
 
     @abstractmethod
-    def process(self, args: list[str], buffer_widget: QWidget): ...
+    def process(self, args: list[str], clipbench: 'ClipboardWorkbench'): ...
 
     @abstractmethod
     def auto_complete(self, args: list[str], index: (int, int)) -> list[str]: ...
@@ -28,3 +27,7 @@ def check_args_range(nargs, lo, hi):
         raise ValueError("too much arguments")
     elif nargs < lo:
         raise ValueError("too less arguments")
+
+
+if typing.TYPE_CHECKING:
+    from clipbench import ClipboardWorkbench

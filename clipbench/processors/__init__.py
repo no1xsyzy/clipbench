@@ -48,14 +48,14 @@ def solve_command_object(command: str) -> Optional[BaseProcessor]:
     return pc()
 
 
-def run(args: list[str], buffer_widget):
+def run(args: list[str], clipbench):
     if not args:
         raise ValueError("empty line")
     command = solve_alias(args[0])
     p = solve_command_object(command)
     if p is None:
         raise ValueError(f"no such command: `{command}`")
-    p.process(args, buffer_widget)
+    p.process(args, clipbench)
 
 
 def auto_complete(args: list[str], index: (int, int)) -> list[str]:

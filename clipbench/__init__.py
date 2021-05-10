@@ -194,7 +194,7 @@ class ClipboardWorkbench(QMainWindow):
         # noinspection PyBroadException
         # since it is showing the exception to user
         try:
-            run(split, widget)
+            run(split, self)
         except Exception:
             msg = QMessageBox()
             msg.setWindowTitle("ClipBench")

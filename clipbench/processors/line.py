@@ -1,7 +1,5 @@
 import re
 
-from PyQt5.QtWidgets import QTextEdit
-
 from ._base import *
 
 
@@ -18,50 +16,50 @@ def filter_line(func, buffer_widget):
 
 
 class AddPrefix(BasePlainTextProcessor):
-    def process(self, args, buffer_widget: QTextEdit):
+    def process(self, args, clipbench):
         check_args_range(len(args), 2, 2)
         prefix = args[1]
-        map_line(lambda line: prefix + line, buffer_widget)
+        map_line(lambda line: prefix + line, clipbench.buffer.widget)
 
     def auto_complete(self, args: list[str], index: (int, int)) -> list[str]:
         return []
 
 
 class AddSuffix(BasePlainTextProcessor):
-    def process(self, args, buffer_widget: QTextEdit):
+    def process(self, args, clipbench):
         check_args_range(len(args), 2, 2)
         suffix = args[1]
-        map_line(lambda line: line + suffix, buffer_widget)
+        map_line(lambda line: line + suffix, clipbench.buffer.widget)
 
     def auto_complete(self, args: list[str], index: (int, int)) -> list[str]:
         return []
 
 
 class Replace(BasePlainTextProcessor):
-    def process(self, args, buffer_widget):
+    def process(self, args, clipbench):
         check_args_range(len(args), 3, 3)
         _, from_, to = args
-        map_line(lambda line: line.replace(from_, to), buffer_widget)
+        map_line(lambda line: line.replace(from_, to), clipbench.buffer.widget)
 
     def auto_complete(self, args, index):
         return []
 
 
 class Sub(BasePlainTextProcessor):
-    def process(self, args, buffer_widget):
+    def process(self, args, clipbench):
         check_args_range(len(args), 3, 3)
         _, from_, to = args
-        map_line(lambda line: re.sub(from_, to, line), buffer_widget)
+        map_line(lambda line: re.sub(from_, to, line), clipbench.buffer.widget)
 
     def auto_complete(self, args, index):
         return []
 
 
 class OnlyKeepLinesContainingRegex(BasePlainTextProcessor):
-    def process(self, args, buffer_widget):
+    def process(self, args, clipbench):
         check_args_range(len(args), 2, 2)
         _, pattern = args
-        filter_line(lambda line: re.search(pattern, line), buffer_widget)
+        filter_line(lambda line: re.search(pattern, line), clipbench.buffer.widget)
 
     def auto_complete(self, args, index):
         return []
