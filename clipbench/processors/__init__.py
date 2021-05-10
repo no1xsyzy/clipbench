@@ -1,4 +1,5 @@
 import importlib
+import typing
 from typing import Optional
 
 import inflection
@@ -48,12 +49,12 @@ def solve_command_object(command: str) -> Optional[BaseProcessor]:
     return pc()
 
 
-def run(args: list[str], clipbench):
+def run(args: list[str], clipbench: 'ClipboardWorkbench'):
     if not args:
         raise ValueError("empty line")
     command = solve_alias(args[0])
     p = solve_command_object(command)
-    if p is None:
+    if p is None or not p.available(clipbench.current_format):
         raise ValueError(f"no such command: `{command}`")
     p.process(args, clipbench)
 
@@ -68,3 +69,7 @@ def auto_complete(args: list[str], index: (int, int)) -> list[str]:
     command = solve_alias(args[0])
     p = solve_command_object(command)
     p.auto_complete(args, index)
+
+
+if typing.TYPE_CHECKING:
+    from clipbench import ClipboardWorkbench
