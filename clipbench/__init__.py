@@ -1,3 +1,4 @@
+import enum
 import shlex
 import sys
 import traceback
@@ -12,8 +13,12 @@ from PyQt5.QtWidgets import (
 from .editors import possible_editors
 from .processors import run
 
-BUFFER_TO_CLIPBOARD = 'BUFFER_TO_CLIPBOARD'
-CLIPBOARD_TO_BUFFER = 'CLIPBOARD_TO_BUFFER'
+
+class SyncDirection(str, enum.Enum):
+    NO = ''
+    BUFFER_TO_CLIPBOARD = 'BUFFER_TO_CLIPBOARD'
+    CLIPBOARD_TO_BUFFER = 'CLIPBOARD_TO_BUFFER'
+    FREEZE = 'FREEZE'
 
 
 class ClipboardWorkbench(QMainWindow):
@@ -21,7 +26,7 @@ class ClipboardWorkbench(QMainWindow):
         super().__init__()
 
         self._transfer = Lock()
-        self._sync_direction = ''
+        self._sync_direction = SyncDirection.NO
         self._possible_editors = []
         self._current_editor = None
         self._buffer = None
@@ -139,30 +144,30 @@ class ClipboardWorkbench(QMainWindow):
             return self.current_editor
 
     def text_changed(self):
-        if self._transfer.locked():
+        if self._transfer.locked() or self._sync_direction != SyncDirection.NO:
             return
         with self._transfer:
-            self._sync_direction = BUFFER_TO_CLIPBOARD
+            self._sync_direction = SyncDirection.BUFFER_TO_CLIPBOARD
             self.sync_buffer_to_clipboard()
-            self._sync_direction = None
+            self._sync_direction = SyncDirection.NO
 
     def mime_select_changed(self, row):
-        if self._transfer.locked():
+        if self._transfer.locked() or self._sync_direction != SyncDirection.NO:
             return
         with self._transfer:
-            self._sync_direction = CLIPBOARD_TO_BUFFER
+            self._sync_direction = SyncDirection.CLIPBOARD_TO_BUFFER
             fe, b = self._possible_editors[row]
             self._current_editor = fe
             self.buffer = b()
             self.sync_clipboard_to_buffer()
-            self._sync_direction = None
+            self._sync_direction = SyncDirection.NO
 
     def clipboard_changed(self):
         clipboard = QApplication.clipboard()
-        if self._transfer.locked() or clipboard.ownsClipboard():
+        if self._transfer.locked() or clipboard.ownsClipboard() or self._sync_direction != SyncDirection.NO:
             return
         with self._transfer:
-            self._sync_direction = CLIPBOARD_TO_BUFFER
+            self._sync_direction = SyncDirection.CLIPBOARD_TO_BUFFER
             mime = clipboard.mimeData()
             self.mime_data = mime
             if self.mime_select.currentRow() >= 0:
@@ -170,10 +175,10 @@ class ClipboardWorkbench(QMainWindow):
                 self._current_editor = fe
                 self.buffer = b()
                 self.sync_clipboard_to_buffer()
-            self._sync_direction = None
+            self._sync_direction = SyncDirection.NO
 
     def sync_buffer_to_clipboard(self):
-        assert self._sync_direction == BUFFER_TO_CLIPBOARD
+        assert self._sync_direction == SyncDirection.BUFFER_TO_CLIPBOARD
         data = self.buffer.get_content()
         self.mime_data = {self.current_format: data}
         mimedata = QMimeData()
@@ -181,7 +186,7 @@ class ClipboardWorkbench(QMainWindow):
         QApplication.clipboard().setMimeData(mimedata)
 
     def sync_clipboard_to_buffer(self):
-        assert self._sync_direction == CLIPBOARD_TO_BUFFER
+        assert self._sync_direction == SyncDirection.CLIPBOARD_TO_BUFFER
         byte_data = self.mime_data[self.current_format]
         if isinstance(byte_data, QByteArray):
             byte_data = byte_data.data()
@@ -190,7 +195,6 @@ class ClipboardWorkbench(QMainWindow):
     def run_command(self):
         command = self.command_line.text()
         split = shlex.split(command)
-        widget = self.buffer.widget
         # noinspection PyBroadException
         # since it is showing the exception to user
         try:
