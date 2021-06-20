@@ -19,6 +19,7 @@ command_alias = {
     'grep': 'r.grep',
     'l.strip': 'line.strip',
     'l.lstrip': 'line.left_strip',
+    'l.rstrip': 'line.rightt_strip',
 }
 
 all_commands = []

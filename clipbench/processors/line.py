@@ -121,3 +121,12 @@ class LeftStrip(BasePlainTextProcessor):
         strip = opts['<strip>']
         for line in lines:
             yield [line.lstrip(strip)]
+
+
+class RightStrip(BasePlainTextProcessor):
+    """Usage: rstrip <strip>"""
+
+    def iterates(self, lines, opts):
+        strip = opts['<strip>']
+        for line in lines:
+            yield [line.rstrip(strip)]
