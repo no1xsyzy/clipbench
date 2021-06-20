@@ -112,3 +112,12 @@ class Strip(BasePlainTextProcessor):
         strip = opts['<strip>']
         for line in lines:
             yield [line.strip(strip)]
+
+
+class LeftStrip(BasePlainTextProcessor):
+    """Usage: lstrip <strip>"""
+
+    def iterates(self, lines, opts):
+        strip = opts['<strip>']
+        for line in lines:
+            yield [line.lstrip(strip)]
