@@ -76,3 +76,28 @@ class RemovePrefix(BasePlainTextProcessor):
             if force and n == 0:
                 raise ValueError(f"line {i + 1} does not contain prefix matching pattern `{prefix}`")
             yield [edited]
+
+
+class RemoveSuffix(BasePlainTextProcessor):
+    """Usage: remove_suffix [-fr] <suffix>
+
+    Options:
+      -f, --force   Do NOT skip line if suffix is not <suffix>
+      -r, --regex   Treat <suffix> as suffix
+    """
+
+    def iterates(self, lines, opts):
+        suffix = opts['<suffix>']
+        force = opts['--force']
+        regex = opts['--regex']
+        if suffix == "":
+            yield from lines
+            return
+        if not regex:
+            suffix = re.escape(suffix)
+        suffix = suffix + "$"
+        for i, line in enumerate(lines):
+            edited, n = re.subn(suffix, "", line, 1)
+            if force and n == 0:
+                raise ValueError(f"line {i + 1} does not contain prefix matching pattern `{suffix}`")
+            yield [edited]
