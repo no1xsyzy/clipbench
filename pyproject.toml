@@ -9,6 +9,7 @@ python = "^3.9"
 PyQt5 = "^5.15.4"
 chardet = "^4.0.0"
 inflection = "^0.5.1"
+docopt = "^0.6.2"
 
 [tool.poetry.dev-dependencies]
 PyQt5-stubs = "^5.15.2"

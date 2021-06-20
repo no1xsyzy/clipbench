@@ -3,6 +3,8 @@ from abc import ABC, abstractmethod
 
 __all__ = ['BaseProcessor', 'BasePlainTextProcessor', 'check_args_range']
 
+from docopt import docopt
+
 
 class BaseProcessor(ABC):
     @abstractmethod
@@ -20,6 +22,22 @@ class BasePlainTextProcessor(BaseProcessor, ABC):
         if mime_format == "text/plain":
             return True
         return False
+
+    def auto_complete(self, args, index):
+        return []
+
+    def process(self, args, clipbench):
+        opts = docopt(self.__doc__, argv=args[1:])
+        buffer_widget = clipbench.buffer.widget
+        text = buffer_widget.toPlainText()
+        buffer_widget.setPlainText(''.join(line + ss[len(s):]
+                                           for s, ss, lines in zip(text.splitlines(),
+                                                                   text.splitlines(True),
+                                                                   self.iterates(text.splitlines(), opts))
+                                           for line in lines))
+
+    @abstractmethod
+    def iterates(self, lines: typing.Iterable[str], opts: dict[str, typing.Any]) -> typing.Iterator[list[str]]: ...
 
 
 def check_args_range(nargs, lo, hi):
