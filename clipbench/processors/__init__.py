@@ -17,6 +17,7 @@ command_alias = {
     's': 'r.s',
     'r.grep': 'line.only_keep_lines_containing_regex',
     'grep': 'r.grep',
+    'l.strip': 'line.strip',
 }
 
 all_commands = []

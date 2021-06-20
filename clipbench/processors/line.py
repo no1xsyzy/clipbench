@@ -66,7 +66,8 @@ class RemovePrefix(BasePlainTextProcessor):
         force = opts['--force']
         regex = opts['--regex']
         if prefix == "":
-            yield from lines
+            for line in lines:
+                yield [line]
             return
         if not regex:
             prefix = re.escape(prefix)
@@ -91,7 +92,8 @@ class RemoveSuffix(BasePlainTextProcessor):
         force = opts['--force']
         regex = opts['--regex']
         if suffix == "":
-            yield from lines
+            for line in lines:
+                yield [line]
             return
         if not regex:
             suffix = re.escape(suffix)
@@ -101,3 +103,12 @@ class RemoveSuffix(BasePlainTextProcessor):
             if force and n == 0:
                 raise ValueError(f"line {i + 1} does not contain prefix matching pattern `{suffix}`")
             yield [edited]
+
+
+class Strip(BasePlainTextProcessor):
+    """Usage: strip <strip>"""
+
+    def iterates(self, lines, opts):
+        strip = opts['<strip>']
+        for line in lines:
+            yield [line.strip(strip)]
