@@ -49,3 +49,30 @@ class OnlyKeepLinesContainingRegex(BasePlainTextProcessor):
         for line in lines:
             if re.search(pattern, line):
                 yield [line]
+
+
+class RemovePrefix(BasePlainTextProcessor):
+    """Removes Prefix.
+
+    Usage: remove_prefix [-fr] <prefix>
+
+    Options:
+      -f, --force   Do NOT skip line if prefix is not <prefix>
+      -r, --regex   Treat <prefix> as prefix
+    """
+
+    def iterates(self, lines, opts):
+        prefix = opts['<prefix>']
+        force = opts['--force']
+        regex = opts['--regex']
+        if prefix == "":
+            yield from lines
+            return
+        if not regex:
+            prefix = re.escape(prefix)
+        prefix = "^" + prefix
+        for i, line in enumerate(lines):
+            edited, n = re.subn(prefix, "", line, 1)
+            if force and n == 0:
+                raise ValueError(f"line {i + 1} does not contain prefix matching pattern `{prefix}`")
+            yield [edited]
